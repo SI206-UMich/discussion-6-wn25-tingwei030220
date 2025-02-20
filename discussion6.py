@@ -25,25 +25,17 @@ def load_csv(f):
         rows = []
         for row in csvFile:
             rows.append(row)
-    
-    headers = next(csvFile)
+        
+    header = rows[0]
     d = {}
 
-    for row in rows:
-        if len(row) == 4:
-            month = row[0]
-            data_1 = row[1]
-            data_2 = row[2]
-            data_3 = row[3]
+    for year in header[1:]:
+        d[year] = {}
 
-            year_d = {}
-            year_d[headers[1]] = data_1
-            year_d[headers[2]] = data_2
-            year_d[headers[3]] = data_3
+    for row in rows[1:]:
+        for i in range(1, len(row[1:])+1):
+            d[header[i]][row[0]] = row[i]
 
-            d[month] = year_d
-
-    inFile.close()
     return d
 
 def get_annual_max(d):
@@ -58,7 +50,13 @@ def get_annual_max(d):
     Note: Don't strip or otherwise modify strings. Do not change datatypes except where necessary.
         You'll have to change vals to int to compare them. 
     '''
-    pass
+    max_list = []
+
+    for year, months in d.items():
+        max_month, max_value = max(months.items(), key=lambda x: int(x[1]))
+        max_list.append((year, max_month, int(max_value)))
+
+    return max_list
 
 def get_month_avg(d):
     '''
@@ -94,6 +92,12 @@ class dis7_test(unittest.TestCase):
         self.assertAlmostEqual(self.month_avg_dict['2020'], 398, 0)
 
 def main():
+    print("---------------------------------------------------")
+    flight_dict = load_csv('daily_visitors.csv')
+    print("Output of load_csv:", flight_dict, "\n")
+    print("Output of get_annual_max:", get_annual_max(flight_dict), "\n")
+    print("Output of get_month_avg:", get_month_avg(flight_dict), "\n")
+
     unittest.main(verbosity=2)
 
 if __name__ == '__main__':
